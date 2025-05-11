@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="container mt-5">
+    <h1>Welcome to the E-Learning Platform</h1>
+    {% if current_user.is_authenticated %}
+        <p>Hello, {{ current_user.Username }}! View your account details on your
+             <a href="{{ url_for('profile') }}">Profile</a> page.</p>
+             
+        <!-- زر إضافة كورس جديد (للمدرسين فقط) -->
+        {% if current_user.Role == 'Instructor' %}
+            <a href="{{ url_for('add_course') }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add New Course
+            </a>
+        {% endif %}
+
+        <div class="container mt-5">
+            <h2 class="mb-4">👋 Welcome, {{ current_user.Username }}!</h2>
+            <h4>Your {% if current_user.Role == 'Instructor' %}Created{% else %}Enrolled{% endif %} Courses</h4>
+            {% if courses %}
+                <div class="list-group">
+                    {% for course in courses %}
+                        <a href="{{ url_for('course_page', course_id=course[0]) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ course[1] }}</h5>
+                                <small>{{ course[3] or 0 }}% complete</small>
+                            </div>
+                            <p class="mb-1">{{ course[2][:100] }}...</p>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>You have no {% if current_user.Role == 'Instructor' %}created{% else %}enrolled{% endif %} courses.</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>Please <a href="{{ url_for('login') }}">log in</a> or <a href="{{ url_for('register') }}">sign up</a> to access your profile and explore our courses.</p>
+    {% endif %}
+</div>
+
+<!-- Modal إضافة كورس جديد (للمدرسين فقط) -->
+{% if current_user.is_authenticated and current_user.Role == 'Instructor' %}
+<div class="modal fade" id="addCourseModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Course</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{{ url_for('add_course') }}">
+                {{ form.hidden_tag() }}
+                <div class="modal-body">
+                    <div class="form-group">
+                        {{ form.title.label }}
+                        {{ form.title(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.description.label }}
+                        {{ form.description(class="form-control", rows=5) }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

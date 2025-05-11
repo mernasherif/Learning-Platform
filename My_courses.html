@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block body %}
+{% if current_user.is_authenticated %}
+    <div class="container mt-5">
+        <h2>Your Enrolled Courses</h2>
+        {% if courses %}
+            <div class="list-group">
+                {% for course in courses %}
+                    <a href="{{ url_for('course_detail', course_id=course[0]) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ course[1] }}</h5>
+                            <small>{{ course[3] or 0 }}% complete</small>
+                        </div>
+                        <p class="mb-1">{{ course[2][:100] }}...</p>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>You are not enrolled in any courses.</p>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}
